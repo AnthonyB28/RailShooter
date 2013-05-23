@@ -11,9 +11,11 @@ public class BulletBehavior : MonoBehaviour {
 	/// </summary>
 	
 	private GameObject player;
+	private PlayerHealth playerHP;
 	public Transform begin; //shooter
 	private Transform end;
 	public Material hitMat;
+	
 	public int velocityHit = 4;
 	public int velocityMiss = 4;
 	
@@ -27,7 +29,8 @@ public class BulletBehavior : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		begin = gameObject.transform;
-		player = GameObject.FindWithTag("MainCamera");
+		player = GameObject.FindWithTag("Player");
+		playerHP = player.GetComponent<PlayerHealth>();
 		hit();
 	}
 	
@@ -65,14 +68,30 @@ public class BulletBehavior : MonoBehaviour {
 				Time.deltaTime*velocityMiss
 				);
 		}
+		
+		//PlayerHit
 		else
 		{
 			transform.position = Vector3.Lerp(begin.transform.position, end.position, Time.deltaTime*velocityHit);
+			//If bullet hits the player and can receive damage, subtract health.
+			if(transform.position.z > player.transform.position.z-0.5
+				& transform.position.z  < player.transform.position.z+0.5
+				& playerHP.canBeHit
+				& playerHP.playerHit == false)
+			{
+				playerHP.health -= 1;
+				playerHP.playerHit = true;
+			}
 		}
 		
 		//Destroy the fired bullet prefabs
 		timer += Time.deltaTime;
 		if(timer > waitTime)
+		{
+			GameObject.Destroy(gameObject);
+		}
+		if(transform.position.z > player.transform.position.z-0.5
+				& transform.position.z  < player.transform.position.z+0.5)
 		{
 			GameObject.Destroy(gameObject);
 		}
