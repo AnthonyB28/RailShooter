@@ -7,6 +7,8 @@ public class PlayerHealth : MonoBehaviour {
 	/// Player health script. Attach to PlayerTarget object.
 	/// Player can only lose health if canBeHit is true.
 	/// If health = 0, then game over.
+	/// 
+	/// Also controls the ducking mechanic.
 	/// </summary>
 	
 	public int health = 3;
@@ -20,9 +22,11 @@ public class PlayerHealth : MonoBehaviour {
 	private int countdown;
 	private bool enableGUI = false;
 	
+	private AstarAI duckScript;
+	
 	// Use this for initialization
 	void Start () {
-	
+	duckScript = GameObject.Find("PlayerTarget").GetComponent<AstarAI>();
 	}
 	
 	// Update is called once per frame
@@ -33,6 +37,7 @@ public class PlayerHealth : MonoBehaviour {
 		{
 			canBeHit = false;
 			canShootEnemy = false;
+			duckScript.duckEvent = true;
 		}
 		
 		//Firing position
@@ -40,7 +45,7 @@ public class PlayerHealth : MonoBehaviour {
 		{
 			canShootEnemy = true;
 			StartCoroutine(EnableHit ());
-			
+			duckScript.endDuck = true;
 		}
 		
 		//Player dies, activate GUI, but prepare for revive

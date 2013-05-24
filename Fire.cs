@@ -24,7 +24,6 @@ public class Fire : MonoBehaviour {
 	void Start () {
 	playerHP = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
 	}
-	
 
 	void Update()
 	{
@@ -74,7 +73,7 @@ public class Fire : MonoBehaviour {
 							}
 						
 						//If target hit is an enemy and has 0 health, kill it.
-						if(target.tag != "Untagged")
+						if(target.tag != "Untagged" & target.tag != "Ground")
 						{
 						  if(targetHP.health <= 0 )
 								{

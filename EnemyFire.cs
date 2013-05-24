@@ -12,22 +12,27 @@ public class EnemyFire : MonoBehaviour {
 	public Transform bullet; // the bullet prefab
 	public float timer;
 	public int waitTime = 2;
+	private EnemyBehavior behave;
+	
 
 	// Use this for initialization
 	void Start () 
 	{
-		
+		behave = GameObject.Find("EnemyManager").GetComponent<EnemyBehavior>();
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
-		timer += Time.deltaTime;
-		if(timer > waitTime)
+		if(behave.canFire)
+		{
+			timer += Time.deltaTime;
+			if(timer > waitTime)
 			{
-				GameObject.Instantiate(bullet,transform.position,Quaternion.Euler(270,0,0));
-				timer = 0;
+					GameObject.Instantiate(bullet,transform.position,Quaternion.Euler(270,0,0));
+					timer = 0;
 			}
+		}
 	}
 	
 	

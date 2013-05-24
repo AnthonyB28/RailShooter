@@ -25,7 +25,9 @@ public class BulletBehavior : MonoBehaviour {
 	
 	private float timer;
 	private int waitTime = 5;
-
+	
+	public double chance;
+	
 	// Use this for initialization
 	void Start () {
 		begin = gameObject.transform;
@@ -40,7 +42,7 @@ public class BulletBehavior : MonoBehaviour {
 	{
 		//End of the target line is the player.
 		end = player.transform;
-		if(Random.value >=0.5)
+		if(Random.value >=chance)
 		{
 			notHit = false;
 			gameObject.renderer.material = hitMat;
