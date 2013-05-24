@@ -13,7 +13,7 @@ public class HurtEffect : MonoBehaviour {
 	
 	public Texture hurtEffect;
 	
-	public float previousHealth;
+	private float previousHealth;
 	
 	private PlayerHealth script;
 	
@@ -39,6 +39,7 @@ public class HurtEffect : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
+		
 			
 		if(script.health < previousHealth)
 		{
@@ -56,9 +57,15 @@ public class HurtEffect : MonoBehaviour {
 				StartCoroutine(StopDisplayingEffect());
 				StartCoroutine (EnableHit());
 			}
+			
 		}
-		
-}
+		//If player continues after death, make sure can be hit still.
+		if(script.revive)
+		{
+			previousHealth = 3;
+			script.revive = false;
+		}
+	}
 	
 	void OnGUI ()
 	{

@@ -18,6 +18,8 @@ public class Fire : MonoBehaviour {
 	public Material hitMat;
 	public EnemyHealth targetHP;
 	
+	public int ammo = 9;
+	
 	// Use this for initialization
 	void Start () {
 	playerHP = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
@@ -25,11 +27,11 @@ public class Fire : MonoBehaviour {
 	
 
 	void Update()
-	{   
+	{
 	//Player can only fire if in firing position
 	if(playerHP.canBeHit)
 		{
-		  if (Input.GetMouseButtonDown(0))
+		  if (Input.GetMouseButtonDown(0) & ammo != 0)
 			{ // only do anything when the button is pressed:
 					
 				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); //Fires a ray according to where mouse is clicked
@@ -41,44 +43,52 @@ public class Fire : MonoBehaviour {
 						Quaternion.identity
 						);
 				//http://forum.unity3d.com/threads/123624-GUITexture-following-mouse-position-on-the-screen
-				
-				//If ray hits anything, do this.
-				RaycastHit hit;
-				if (Physics.Raycast(ray, out hit))
+				if(playerHP.canShootEnemy)
 				{
-				  Debug.DrawLine (character.position, hit.point);
-					
-					
-				  //Enemy targeting. If the beam hits, gets gameobject it hit.
-				  //Compare the tag with enemy types and do damage when hit.		
-				  target = hit.collider.gameObject;
-				  targetHP = target.GetComponent<EnemyHealth>();
-					
-				   if(target.tag == "Enemy1")
-						{
-							targetHP.health -= 100;
-						}
-					
-					if(target.tag == "Enemy2")
-						{
-				  			target.renderer.material = hitMat;
-							targetHP.health -= 50;
-							if(targetHP.health <= 0)
-							{
-								Destroy(target);
-							}
-						}
-					
-					//If target hit is an enemy and has 0 health, kill it.
-					if(target.tag != "Untagged")
+					ammo -=1;
+					//If ray hits anything, do this.
+					RaycastHit hit;
+					if (Physics.Raycast(ray, out hit))
 					{
-					  if(targetHP.health <= 0 )
+					  Debug.DrawLine (character.position, hit.point);
+						
+						
+					  //Enemy targeting. If the beam hits, gets gameobject it hit.
+					  //Compare the tag with enemy types and do damage when hit.		
+					  target = hit.collider.gameObject;
+					  targetHP = target.GetComponent<EnemyHealth>();
+						
+					   if(target.tag == "Enemy1")
 							{
-								Destroy(target);
+								targetHP.health -= 100;
 							}
+						
+						if(target.tag == "Enemy2")
+							{
+					  			target.renderer.material = hitMat;
+								targetHP.health -= 50;
+								if(targetHP.health <= 0)
+								{
+									Destroy(target);
+								}
+							}
+						
+						//If target hit is an enemy and has 0 health, kill it.
+						if(target.tag != "Untagged")
+						{
+						  if(targetHP.health <= 0 )
+								{
+									Destroy(target);
+								}
+						}
 					}
 				}
 			}
+		}
+		
+		else
+		{
+			ammo = 9;
 		}
 			
 	}
