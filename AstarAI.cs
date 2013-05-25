@@ -14,14 +14,14 @@ public class AstarAI : MonoBehaviour {
 	private GameObject closestDuck;
 	//private GameObject camera;
 	private PathEvent eventScript;
+	private PlayerHealth waitScript;
  
     //The calculated path
     public Path path;
 	
 	public bool movingEvent = true;
-	public bool duckEvent = false;
-	public bool startDuck = true;
-	public bool endDuck = false;
+	public bool duckEvent, beginDuck, returnDuck, firstReturnSearch, lockpos = false;
+	public bool firstDuckSearch = true;
     
     //The AI's speed per second
     public float speed = 400;
@@ -50,6 +50,7 @@ public class AstarAI : MonoBehaviour {
 		//camera = GameObject.FindGameObjectWithTag("MainCamera");
         //Start a new path to the targetPosition, return the result to the OnPathComplete function
 		eventScript = FindClosestPath().GetComponent<PathEvent>();
+		waitScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
         seeker.StartPath (transform.position,FindClosestPath().transform.position, OnPathComplete);
     }
 	
@@ -103,13 +104,18 @@ public class AstarAI : MonoBehaviour {
 	
 	public void Duck()
 	{
-		if(startDuck)
+		if(firstDuckSearch)
 		{
-		seeker.StartPath (transform.position,FindClosestDuck().transform.position, OnPathComplete);
-		startDuck = false;
+			seeker.StartPath (transform.position,FindClosestDuck().transform.position, OnPathComplete);
+			firstDuckSearch = false;
+		}
+		if(firstReturnSearch)
+		{
+			seeker.StartPath (transform.position,FindClosestPath().transform.position, OnPathComplete);
+			firstReturnSearch = false;
 		}
 	}
-    
+	
     public void OnPathComplete (Path p) {
         Debug.Log ("Yey, we got a path back. Did it have an error? "+p.error);
         if (!p.error) {
@@ -131,18 +137,19 @@ public class AstarAI : MonoBehaviour {
 			//REACHED END OF CURRENT PATH
 	        if (currentWaypoint >= path.vectorPath.Count) {
 	            Debug.Log ("End Of Path Reached");
+				currentWaypoint = 0;
 				if(eventScript.isThisEvent)
 				{
 					enemy.canFire = true;
 					movingEvent = false;
-					endDuck = false;
+					waitScript.waitEvent = eventScript.waitEvent;
 				}
 	            return;
 	        }
 	        
 			
 			//Only move if the player is not hit and not ducking
-			if(script.playerHit == false & script.canShootEnemy & canMove)
+			if(script.playerHit == false  & script.canShootEnemy & canMove)
 			{
 	        //Direction to the next waypoint
 	        Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
@@ -162,10 +169,50 @@ public class AstarAI : MonoBehaviour {
 		
 		if(duckEvent)
 		{
-			if(endDuck == false)
+			
+			//First click duck
+			if(beginDuck & !returnDuck)
 			{
 				Duck ();
-		        //Direction to the next waypoint
+				if (currentWaypoint >= path.vectorPath.Count & beginDuck) 
+				{
+					currentWaypoint = 0;
+					lockpos = true;
+					Debug.Log ("HITITITITITITITITITIT");
+	       		}
+				
+				if(!lockpos)
+				{
+			        //Direction to the next waypoint
+			        Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
+			        dir *= duckSpeed * Time.fixedDeltaTime;
+			        controller.SimpleMove (dir);
+					Debug.Log ("DOINGTHIS");
+					
+			        //Check if we are close enough to the next waypoint
+			        //If we are, proceed to follow the next waypoint
+			        if (Vector3.Distance (transform.position,path.vectorPath[currentWaypoint]) < nextWaypointDistance) 
+					{
+						
+			            currentWaypoint++;
+			            return;
+			     
+					}
+				}
+			}
+			
+			if(returnDuck & !beginDuck)
+			{
+				Duck ();
+				if (currentWaypoint >= path.vectorPath.Count) 
+				{
+		            Debug.Log ("End Of Duck Reached");
+					currentWaypoint = 0;
+					returnDuck = false;
+					duckEvent = false;
+					firstDuckSearch = true;
+	       		 }
+				//Direction to the next waypoint
 		        Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
 		        dir *= duckSpeed * Time.fixedDeltaTime;
 		        controller.SimpleMove (dir);
@@ -178,17 +225,11 @@ public class AstarAI : MonoBehaviour {
 		            return;
 		     
 				}
-			  }
-			
-			if(endDuck)
-			{
-				seeker.StartPath (transform.position,FindClosestPath().transform.position, OnPathComplete);
-				movingEvent = true;
-				duckEvent = false;
-				startDuck = true;
-				
 			}
 		}
+		
+				
+				
 	 }
 
 }

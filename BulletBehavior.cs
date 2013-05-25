@@ -98,4 +98,13 @@ public class BulletBehavior : MonoBehaviour {
 			GameObject.Destroy(gameObject);
 		}
 	}
+	
+	//Destroy bullets if they hit any obstacles
+	void OnCollisionEnter( Collision Target)
+	{
+		if(Target.gameObject.tag == "Obstacles")
+		{
+		Destroy(gameObject);
+		}
+	}
 }

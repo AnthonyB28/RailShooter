@@ -21,6 +21,7 @@ public class PlayerHealth : MonoBehaviour {
 	private int countdownmin;
 	private int countdown;
 	private bool enableGUI = false;
+	public bool waitEvent = true;
 	
 	private AstarAI duckScript;
 	
@@ -32,20 +33,28 @@ public class PlayerHealth : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		//Duck down position
-		if(Input.GetMouseButtonDown(1))
+		if(!waitEvent)
 		{
-			canBeHit = false;
-			canShootEnemy = false;
-			duckScript.duckEvent = true;
-		}
-		
-		//Firing position
-		if(Input.GetMouseButtonUp(1))
-		{
-			canShootEnemy = true;
-			StartCoroutine(EnableHit ());
-			duckScript.endDuck = true;
+			//Duck down position
+			if(Input.GetMouseButtonDown(1))
+			{
+				canBeHit = false;
+				canShootEnemy = false;
+				duckScript.duckEvent = true;
+				duckScript.beginDuck = true;
+			}
+			
+			//Firing position
+			if(Input.GetMouseButtonUp(1))
+			{
+				canShootEnemy = true;
+				StartCoroutine(EnableHit ());
+				duckScript.beginDuck = false;
+				duckScript.firstDuckSearch = false;
+				duckScript.firstReturnSearch = true;
+				duckScript.returnDuck = true;
+				duckScript.lockpos = false;
+			}
 		}
 		
 		//Player dies, activate GUI, but prepare for revive
