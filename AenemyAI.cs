@@ -3,26 +3,8 @@ using System.Collections;
 //Note this line, if it is left out, the script won't know that the class 'Path' exists and it will throw compiler errors
 //This line should always be present at the top of scripts which use pathfinding
 using Pathfinding;
-public class AstarAI : MonoBehaviour {
-	
-	/// <summary>
-	/// Crazy playerAI script.
-	/// Admiteddly don't know how much of this I understood when writing it.
-	///
-	/// Looks for a path to follow. Upon reaching it, checks pathNode for event information.
-	/// Relays event information to enemy manager to spawn/control enemies.
-	/// 
-	/// Controls the duck mechanic movement.
-	/// PlayerHealth tells this script when the player presses/releases duck button.
-	/// Duck() will search for the closest duckNode and move player to it on press.
-	/// Duck() will also search for the closest pathNode and move player to it on release.
-	/// Throws all kinds of bools around to accomplish movement.
-	/// 
-	/// Manages speed of player movement and duck.
-	/// 
-	/// Must have Seeker component attached, critical.
-	/// </summary>
-	
+
+public class AenemyAI : MonoBehaviour {
     //The point to move to
     public Vector3 targetPosition;
     
@@ -30,24 +12,25 @@ public class AstarAI : MonoBehaviour {
     private CharacterController controller;
 	private GameObject [] pathTarget;
 	private GameObject closestPath;
-	private GameObject closestDuck;
+	//private GameObject closestDuck;
 	//private GameObject camera;
-	private PathEvent eventScript;
-	private PlayerHealth waitScript;
+	//private PathEvent eventScript;
+	//private PlayerHealth waitScript;
+	//private PlayerHealth script;
  
     //The calculated path
     public Path path;
-	public Path duckPath;
+	//public Path duckPath;
 	
-	public bool movingEvent = true;
-	public bool duckEvent, beginDuck, returnDuck, firstReturnSearch, lockpos = false;
-	public bool firstDuckSearch = true;
+	//public bool duckEvent, beginDuck, returnDuck, firstReturnSearch, lockpos = false;
+	//public bool firstDuckSearch = true;
     
     //The AI's speed per second
     public float speed = 400;
-	public float duckSpeed = 600;
+	//public float duckSpeed = 600;
 	
-	public bool canMove = false;
+	public bool canMove = true;
+	public bool arcade = false;
 	
 	public float startpeed;
 	
@@ -59,15 +42,15 @@ public class AstarAI : MonoBehaviour {
     //The waypoint we are currently moving towards
     private int currentWaypoint = 0;
 	
-	private PlayerHealth script;
  
     public void Start () {
 		
 		enemy = GameObject.Find("EnemyManager").GetComponent<EnemyBehavior>();
         seeker = GetComponent<Seeker>();
         controller = GetComponent<CharacterController>();
-		script = GetComponent<PlayerHealth>();
-		waitScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
+		//script = GetComponent<PlayerHealth>();
+		//eventScript = FindClosestPath().GetComponent<PathEvent>();
+		//waitScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
 		
 		startpeed = speed; //Store the speed of movement just incase.
         
@@ -79,7 +62,23 @@ public class AstarAI : MonoBehaviour {
 	//Searches for the closest firingNode
 	public GameObject FindClosestPath()
 	{
-		pathTarget = GameObject.FindGameObjectsWithTag("Path");
+		if(gameObject.tag == "Enemy1")
+		{
+		pathTarget = GameObject.FindGameObjectsWithTag("Enemy1Path");
+		}
+		
+		else if(gameObject.tag == "Enemy2")
+		{
+			pathTarget = GameObject.FindGameObjectsWithTag("Enemy2Path");
+		}
+		
+		else if(gameObject.tag == "Enemy3")
+		{
+			pathTarget = GameObject.FindGameObjectsWithTag("Enemy3Path");
+		}
+		
+		else
+		{}
 		
         float distance = Mathf.Infinity;
         Vector3 position = transform.position;
@@ -101,7 +100,7 @@ public class AstarAI : MonoBehaviour {
         return closestPath;
 	}
 	
-	//Searches for the closest duckNode
+	/*//Searches for the closest duckNode
 	public GameObject FindClosestDuck()
 	{
 		pathTarget = GameObject.FindGameObjectsWithTag("Duck");
@@ -138,11 +137,11 @@ public class AstarAI : MonoBehaviour {
 			seeker.StartPath (transform.position,FindClosestPath().transform.position, OnPathComplete);
 			firstReturnSearch = false;
 		}
-	}
+	}*/
 	
 	//Stores the firing path
     public void OnPathComplete (Path p) {
-        Debug.Log ("Yey, we got a path back. Did it have an error? "+p.error);
+        Debug.Log ("Yey, we got a path back FOR ENEMY. Did it have an error? "+p.error);
         if (!p.error) {
             path = p;
             //Reset the waypoint counter
@@ -151,12 +150,12 @@ public class AstarAI : MonoBehaviour {
         }
     }
 	
-	//Stores the duck path
+	/*//Stores the duck path
 	public void OnDuckPathComplete(Path p)
 	{
 		duckPath = p;
 		currentWaypoint = 0;
-	}
+	}*/
  
     public void FixedUpdate () {
         if (path == null) {
@@ -165,32 +164,27 @@ public class AstarAI : MonoBehaviour {
         }
         
 		//Player is only moving inbetween gameplay
-		if(movingEvent)
+		if(!enemy.movingEvent & canMove)
 		{
 			//REACHED END OF CURRENT PATH
 	        if (currentWaypoint >= path.vectorPath.Count) {
-	            Debug.Log ("End Of Path Reached");
+	            Debug.Log ("End Of ENEMY Path Reached");
 				currentWaypoint = 0;
-				eventScript = FindClosestPath().GetComponent<PathEvent>();
-				if(eventScript.isThisEvent)
+				if(!arcade) //If arcade enabled, enemy will move back and fourth continously.
 				{
-					enemy.canFire = true;
-					movingEvent = false;
-					enemy.movingEvent = false;
-					waitScript.waitEvent = eventScript.waitEvent;
+					canMove = false;
+					Destroy(closestPath);
 				}
 	            return;
 	        }
 	        
 			
 			//Only move if the player is not hit and not ducking
-			if(script.playerHit == false  & script.canShootEnemy & canMove)
-			{
+			
 	        //Direction to the next waypoint
 	        Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
 	        dir *= speed * Time.fixedDeltaTime;
 	        controller.SimpleMove (dir);
-			}
 			
 	        //Check if we are close enough to the next waypoint
 	        //If we are, proceed to follow the next waypoint
@@ -202,11 +196,11 @@ public class AstarAI : MonoBehaviour {
 			}
 		 }
 		
-		//If player right clicks, enter ducking event.
+		/*//If player right clicks, enter ducking event.
 		//Calls Duck(), moves to duckNode.
 		//If player lets go, calls Duck() and moves back to firing node.
 		//I feel this could be enhanced more, storing the paths instead of always searching.
-		if(duckEvent & !script.playerHit)
+		if(duckEvent)
 		{
 			
 			//Begin ducking to duckNode
@@ -269,7 +263,7 @@ public class AstarAI : MonoBehaviour {
 		     
 				}
 			}
-		}
+		}*/
 		
 				
 				

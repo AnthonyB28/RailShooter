@@ -14,10 +14,13 @@ public class BulletBehavior : MonoBehaviour {
 	private PlayerHealth playerHP;
 	public Transform begin; //shooter
 	private Transform end;
+	private Vector3 playerPos;
 	public Material hitMat;
 	
 	public int velocityHit = 4;
 	public int velocityMiss = 4;
+	private float rotateY;
+	private float rotateX;
 	
 	private bool notHit = false;
 	private int randomX;
@@ -34,6 +37,7 @@ public class BulletBehavior : MonoBehaviour {
 		player = GameObject.FindWithTag("Player");
 		playerHP = player.GetComponent<PlayerHealth>();
 		hit();
+		playerPos = end.position;
 	}
 	
 	//Determines whether bullet is a hit or not randomly.
@@ -66,7 +70,7 @@ public class BulletBehavior : MonoBehaviour {
 		{
 			transform.position = Vector3.Lerp (
 				begin.transform.position,
-				new Vector3(end.position.x+randomX,end.position.y+randomY,end.position.z),
+				new Vector3(playerPos.x+randomX,playerPos.y+randomY,playerPos.z-0.9f),
 				Time.deltaTime*velocityMiss
 				);
 		}
@@ -74,10 +78,17 @@ public class BulletBehavior : MonoBehaviour {
 		//PlayerHit
 		else
 		{
-			transform.position = Vector3.Lerp(begin.transform.position, end.position, Time.deltaTime*velocityHit);
+			rotateY = transform.rotation.y;
+			transform.position = Vector3.Lerp(begin.transform.position, new Vector3(playerPos.x+randomX,playerPos.y+randomY,playerPos.z-0.9f), Time.deltaTime*velocityHit);
+			transform.LookAt(playerPos);
+			transform.Rotate(new Vector3(270,rotateY,transform.rotation.z));
 			//If bullet hits the player and can receive damage, subtract health.
 			if(transform.position.z > player.transform.position.z-0.5
 				& transform.position.z  < player.transform.position.z+0.5
+				& transform.position.x > player.transform.position.x-1
+				& transform.position.x < player.transform.position.x+1
+				& transform.position.y > player.transform.position.y-1
+				& transform.position.y < player.transform.position.y+1
 				& playerHP.canBeHit
 				& playerHP.playerHit == false)
 			{

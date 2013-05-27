@@ -36,24 +36,29 @@ public class PlayerHealth : MonoBehaviour {
 		if(!waitEvent)
 		{
 			//Duck down position
+			//Begin the search for a duck node and move to it.
 			if(Input.GetMouseButtonDown(1))
 			{
-				canBeHit = false;
-				canShootEnemy = false;
+				canBeHit = false; //Player invulnerable
+				canShootEnemy = false; //Unable to shoot enemy in this position
+				duckScript.returnDuck = false; //If returning and player goes back, make sure it can return.
+				//duckScript.firstDuckSearch = true;
 				duckScript.duckEvent = true;
 				duckScript.beginDuck = true;
+				
 			}
 			
 			//Firing position
+			//Begin the search for a position node and move to it.
 			if(Input.GetMouseButtonUp(1))
 			{
-				canShootEnemy = true;
+				canShootEnemy = true; //Can shoot enemy
 				StartCoroutine(EnableHit ());
 				duckScript.beginDuck = false;
-				duckScript.firstDuckSearch = false;
+				//duckScript.firstDuckSearch = false;
 				duckScript.firstReturnSearch = true;
-				duckScript.returnDuck = true;
-				duckScript.lockpos = false;
+				duckScript.returnDuck = true; //Exit duck position
+				duckScript.lockpos = false; //Make sure player can hold duck down
 			}
 		}
 		

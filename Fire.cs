@@ -36,15 +36,18 @@ public class Fire : MonoBehaviour {
 				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); //Fires a ray according to where mouse is clicked
 				
 				//This is the Bullethole guiTexture
+				//http://forum.unity3d.com/threads/123624-GUITexture-following-mouse-position-on-the-screen
 				GUITexture.Instantiate(
 						bulletFX, 
 						new Vector3((Input.mousePosition.x-16)/Screen.width,(Input.mousePosition.y-18)/Screen.height, 0),
 						Quaternion.identity
 						);
-				//http://forum.unity3d.com/threads/123624-GUITexture-following-mouse-position-on-the-screen
+				
+				
 				if(playerHP.canShootEnemy)
 				{
 					ammo -=1;
+					
 					//If ray hits anything, do this.
 					RaycastHit hit;
 					if (Physics.Raycast(ray, out hit))
@@ -66,19 +69,18 @@ public class Fire : MonoBehaviour {
 							{
 					  			target.renderer.material = hitMat;
 								targetHP.health -= 50;
-								if(targetHP.health <= 0)
-								{
-									Destroy(target);
-								}
 							}
 						
-						//If target hit is an enemy and has 0 health, kill it.
+						if(target.tag == "Enemy3")
+							{
+					  			target.renderer.material = hitMat;
+								targetHP.health -= 50;
+							}
+						
+						//prevent errors
 						if(target.tag != "Untagged" & target.tag != "Ground")
 						{
-						  if(targetHP.health <= 0 )
-								{
-									Destroy(target);
-								}
+						  
 						}
 					}
 				}
@@ -87,6 +89,7 @@ public class Fire : MonoBehaviour {
 		
 		else
 		{
+			//Reload player automatically when not playing
 			ammo = 9;
 		}
 			

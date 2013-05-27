@@ -29,7 +29,7 @@ public class EnemyFire : MonoBehaviour {
 			timer += Time.deltaTime;
 			if(timer > waitTime)
 			{
-					GameObject.Instantiate(bullet,transform.position,Quaternion.Euler(270,0,0));
+					GameObject.Instantiate(bullet,transform.position,Quaternion.Euler(270,-10,0));
 					timer = 0;
 			}
 		}
