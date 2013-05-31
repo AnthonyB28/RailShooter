@@ -91,10 +91,7 @@ public class AenemyAI : MonoBehaviour {
                 closestPath = go;
                 distance = curDistance;
             }
-			else
-			{
-				closestPath = go;
-			}
+
         }
 		
         return closestPath;
@@ -146,7 +143,7 @@ public class AenemyAI : MonoBehaviour {
             path = p;
             //Reset the waypoint counter
             currentWaypoint = 0;
-			
+			Destroy(closestPath);
         }
     }
 	

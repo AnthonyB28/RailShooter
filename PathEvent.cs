@@ -6,11 +6,12 @@ public class PathEvent : MonoBehaviour {
 	public bool isThisEvent; //PlayerAI checks this, if true then game will leave wait mode.
 	public bool turnCameraEvent; //PlayerAI checks this, if true then some kind of cutscene.
 	public bool waitEvent = false; //PlayerAI checks this, if true then player will not be able to shoot or duck.
+	public bool waitUpToEvent = true;
 	public int enemyEvent; //the number of enemies in the event IN TOTAL that the player has to kill
 	public int eventNum; //the event number
 	private GameObject Player;
 	private EnemyBehavior enemyControl;
-	private float distance = Mathf.Infinity;
+	private float distance = 30.0f;
 	private bool shootEvent = false; //activate the event parameters only once (call once)
 
 	// Use this for initialization

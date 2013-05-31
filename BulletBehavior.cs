@@ -68,6 +68,8 @@ public class BulletBehavior : MonoBehaviour {
 		//Time * # can be changed to increase speed.
 		if(notHit)
 		{
+			transform.LookAt(playerPos);
+			transform.Rotate(new Vector3(270,rotateY,transform.rotation.z));
 			transform.position = Vector3.Lerp (
 				begin.transform.position,
 				new Vector3(playerPos.x+randomX,playerPos.y+randomY,playerPos.z-0.9f),
@@ -79,10 +81,20 @@ public class BulletBehavior : MonoBehaviour {
 		else
 		{
 			rotateY = transform.rotation.y;
-			transform.position = Vector3.Lerp(begin.transform.position, new Vector3(playerPos.x+randomX,playerPos.y+randomY,playerPos.z-0.9f), Time.deltaTime*velocityHit);
+			Vector3 targetPos = new Vector3(playerPos.x,playerPos.y,playerPos.z);
+			transform.position = Vector3.Lerp(begin.transform.position, targetPos, Time.deltaTime*velocityHit);
 			transform.LookAt(playerPos);
 			transform.Rotate(new Vector3(270,rotateY,transform.rotation.z));
-			//If bullet hits the player and can receive damage, subtract health.
+			
+			//Destroy the bullet if it reaches target, but does not collide.
+			float distance = 0.2f;
+			Vector3 diff = transform.position - targetPos;
+	    	float curDistance = diff.sqrMagnitude;
+			if(curDistance < distance)
+			{
+				Destroy(gameObject);
+			}
+			/*If bullet hits the player and can receive damage, subtract health.
 			if(transform.position.z > player.transform.position.z-0.5
 				& transform.position.z  < player.transform.position.z+0.5
 				& transform.position.x > player.transform.position.x-1
@@ -94,7 +106,8 @@ public class BulletBehavior : MonoBehaviour {
 			{
 				playerHP.health -= 1;
 				playerHP.playerHit = true;
-			}
+			}*/
+			
 		}
 		
 		//Destroy the fired bullet prefabs
@@ -113,9 +126,20 @@ public class BulletBehavior : MonoBehaviour {
 	//Destroy bullets if they hit any obstacles
 	void OnCollisionEnter( Collision Target)
 	{
+		Debug.Log (Target.gameObject.name);
 		if(Target.gameObject.tag == "Obstacles")
 		{
 		Destroy(gameObject);
+		}
+		if(Target.gameObject.tag == "Player" || Target.gameObject.tag=="MainCamera")
+		{
+			if(playerHP.canBeHit & playerHP.playerHit == false & !notHit)
+			{
+				
+				playerHP.health -= 1;
+				playerHP.playerHit = true;
+				Destroy(gameObject);
+			}
 		}
 	}
 }

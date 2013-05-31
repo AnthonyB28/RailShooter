@@ -22,7 +22,7 @@ public class EnemyBehavior : MonoBehaviour {
 	
 	//Enemies
 	public GameObject enemy1, enemy2, enemy3;
-	public GameObject enemy1Spawn1, enemy2Spawn1, enemy3Spawn1;
+	public GameObject enemy1Spawn1, enemy2Spawn1, enemy3Spawn1, enemy1Spawn2, enemy2Spawn2, enemy3Spawn2;
 
 	// Use this for initialization
 	void Start () {
@@ -38,7 +38,7 @@ public class EnemyBehavior : MonoBehaviour {
 			//If all enemies spawned are dead, then do this.
 			if(alive == 0)
 			{
-				if(!spawned)
+				if(!spawned & dead > 0)
 				{
 					spawnWave(1);
 				}
@@ -51,13 +51,12 @@ public class EnemyBehavior : MonoBehaviour {
 					//Continue command
 					dead = 0;
 					nextEvent = true;
-					//spawned = false;
 				}
 			}
 		}
-		if(gameEvent == 1)
+		if(gameEvent == 2)
 		{
-			Debug.Log ("GOT IT");
+			spawnWave(1);
 		}
 	}
 	
@@ -67,6 +66,8 @@ public class EnemyBehavior : MonoBehaviour {
 		{
 			if(num == 1)
 			{
+				Debug.Log ("I'm firing");
+				Debug.Log ("I'm firing");
 				spawned = true;
 				Instantiate(enemy1,enemy1Spawn1.transform.position,Quaternion.identity);
 				Instantiate(enemy2,enemy2Spawn1.transform.position,Quaternion.identity);
@@ -76,5 +77,21 @@ public class EnemyBehavior : MonoBehaviour {
 				
 			}
 		}
+		
+		if(gameEvent == 2 & !spawned)
+		{
+			if(num == 1)
+			{
+				spawned = true;
+				Instantiate(enemy1,enemy1Spawn2.transform.position,Quaternion.identity);
+				Instantiate(enemy2,enemy2Spawn2.transform.position,Quaternion.identity);
+				Instantiate(enemy3,enemy3Spawn2.transform.position,Quaternion.identity);
+				GameObject.Find("enemy1").GetComponent<AenemyAI>().speed = 1200;
+				GameObject.Find("enemy2").GetComponent<AenemyAI>().speed = 900;
+				
+			}
+		}
+		
+		
 	}
 }

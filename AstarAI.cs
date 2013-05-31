@@ -60,6 +60,8 @@ public class AstarAI : MonoBehaviour {
     private int currentWaypoint = 0;
 	
 	private PlayerHealth script;
+	
+	private bool destroyedEvent = false;
  
     public void Start () {
 		
@@ -101,6 +103,18 @@ public class AstarAI : MonoBehaviour {
         return closestPath;
 	}
 	
+	public void nextEvent ()
+	{
+        //Start a new path to the targetPosition, return the result to the OnPathComplete function
+		eventScript = FindClosestPath().GetComponent<PathEvent>();
+		waitScript.waitEvent = eventScript.waitUpToEvent;
+		enemy.gameEvent = eventScript.eventNum;
+        seeker.StartPath (transform.position,FindClosestPath().transform.position, OnPathComplete);
+		movingEvent = true;
+		firstDuckSearch = true;
+		
+	}
+	
 	//Searches for the closest duckNode
 	public GameObject FindClosestDuck()
 	{
@@ -117,10 +131,6 @@ public class AstarAI : MonoBehaviour {
                 closestDuck = go;
                 distance = curDistance;
             }
-			else
-			{
-				closestDuck = go;
-			}
         }
 		
         return closestDuck;
@@ -163,6 +173,12 @@ public class AstarAI : MonoBehaviour {
             //We have no path to move after yet
             return;
         }
+		
+		//if(enemy.nextEvent)
+		//{
+		//	nextEvent();
+		//	enemy.nextEvent = false;
+	//	}
         
 		//Player is only moving inbetween gameplay
 		if(movingEvent)
@@ -178,6 +194,9 @@ public class AstarAI : MonoBehaviour {
 					movingEvent = false;
 					enemy.movingEvent = false;
 					waitScript.waitEvent = eventScript.waitEvent;
+					enemy.nextEvent = false;
+					enemy.spawned = false;
+					
 				}
 	            return;
 	        }
@@ -271,7 +290,19 @@ public class AstarAI : MonoBehaviour {
 			}
 		}
 		
-				
+		if(enemy.nextEvent)
+		{
+			Debug.Log ("nextEvent FIRING");
+			if(!destroyedEvent)
+			{
+				Destroy(FindClosestPath());
+				destroyedEvent = true;
+			}
+			
+			FindClosestPath();
+			nextEvent();
+			
+		}
 				
 	 }
 
