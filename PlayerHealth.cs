@@ -20,7 +20,7 @@ public class PlayerHealth : MonoBehaviour {
 	private int countdownmax;
 	private int countdownmin;
 	private int countdown;
-	private bool enableGUI = false;
+	public bool enableGUI = false;
 	public bool waitEvent = true;
 	
 	private AstarAI duckScript;
